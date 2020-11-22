@@ -1,0 +1,4 @@
+Server: gunicorn/19.7.1
+Date: Fri, 13 Nov 2020 21:29:06 GMT
+Content-Type: text/html; charset=utf-8
+Location: http://blog.goggle.com
