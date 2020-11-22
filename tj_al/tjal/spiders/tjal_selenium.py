@@ -1,12 +1,13 @@
 import scrapy
 from selenium import webdriver
+from time import sleep
 
 
 class TjalSpdrSpider(scrapy.Spider):
 
     name = 'tjal_2'
     allowed_domains = ['www2.tjal.jus.br/']
-    # url_path = www2.tjal.jus.br/cpopg/open.do
+
 
     def start_requests(self):
 
@@ -120,5 +121,6 @@ class TjalSpdrSpider(scrapy.Spider):
                 'statusObservacao': status_processo,
                 'numeroProcessoUnico': numero_processo,
              }
+        sleep(1.5)
         self.drive.quit()
 

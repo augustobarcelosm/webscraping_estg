@@ -17,7 +17,6 @@ class Tjpi2Spider(scrapy.Spider):
                             callback=self.parse)
 
     def parse(self, response):
-
         partes = []
         url = response.url
         grau_processo = response.xpath('//head/title/text()').get().split('-')[-1].strip()
