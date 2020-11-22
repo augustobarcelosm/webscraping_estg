@@ -1,11 +1,11 @@
 import scrapy
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
+import unittest
 from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
 
 class Tjpi2Spider(scrapy.Spider):
     name = 'tjpi_2'
@@ -15,16 +15,16 @@ class Tjpi2Spider(scrapy.Spider):
 
         self.drive = webdriver.Chrome(executable_path=r'./chromedriver.exe')
         self.drive.get('https://tjpi.pje.jus.br/1g/ConsultaPublica/listView.seam')
-        sleep(2)
         input_num = '0000989-95.2017.8.18.0078'
         input_search1 = self.drive.find_element_by_xpath(
             '//input[@id="fPP:numProcesso-inputNumeroProcessoDecoration:numProcesso-inputNumeroProcesso"]')
         input_search1.send_keys(f'{input_num}')
+        sleep(1.5)
 
         click_search = self.drive.find_element_by_xpath('//input[@id="fPP:searchProcessos"]')
         click_search.click()
 
-        sleep(1)
+        sleep(1.5)
 
         try:
 
@@ -49,14 +49,6 @@ class Tjpi2Spider(scrapy.Spider):
 
     def parse(self, response):
 
-        def change_page_movt():
-
-            page = self.drive.find_element_by_id('j_id140:j_id501:j_id502ArrowInc')
-            page.click()
-            #sleep(1.5)
-            loader = w
-            #j_id140:processoEventoPanel_body
-
         try:
             url = self.drive.current_url
             grau_processo = response.xpath('//head/title/text()').get().split('-')[-1].strip()
@@ -70,7 +62,7 @@ class Tjpi2Spider(scrapy.Spider):
             codigoCNJ = codigo.replace(')', '')
 
             data = response.xpath('//*[@id="j_id140:processoTrfViewView:j_id158"]/div/div[2]/text()').get().strip()
-            e_Processo = ''
+            e_Processo = True
             num_processo = response.xpath('//*[@id="j_id140:processoTrfViewView:j_id146"]/div/div[2]/div/'
                                           'text()').get().strip()
 
@@ -122,13 +114,28 @@ class Tjpi2Spider(scrapy.Spider):
                         ]
                         })
 
+            def change_page_movt(prev_conteudo):
+
+                page = self.drive.find_element_by_id('j_id140:j_id501:j_id502ArrowInc')
+                page.click()
+
+                #slider = self.drive.find_element_by_id('j_id140:j_id501:j_id502Track')
+                loader = self.drive.find_element_by_class_name('rich-inslider-track-decor-2')
+                WebDriverWait(self.drive, 10).until(EC.invisibility_of_element_located(loader))
+
+                next_conteudo = response.xpath('//*[@id="j_id140:processoEvento:tb"]/tr//text()').getall()
+
+                unittest.TestCase.assertNotEqual(prev_conteudo, next_conteudo, "conteudo nao foi alterado")
+
             movimentos = []
             indice = 60
-            tabela_mov = response.xpath('//*[@id="j_id140:processoEvento:tb"]/tr')
 
             while True:
 
                 i = 0
+
+                container_body = response.xpath('//*[@id="j_id140:processoEvento:tb"]/tr//text()').getall()
+                tabela_mov = response.xpath('//*[@id="j_id140:processoEvento:tb"]/tr')
 
                 for mov in tabela_mov:
 
@@ -162,7 +169,8 @@ class Tjpi2Spider(scrapy.Spider):
                         'numeroProcessoUnico': num_processo
                     }
                     break
-                change_page_movt()
+                change_page_movt(container_body)
+                sleep(1)
 
         finally:
             self.drive.quit()

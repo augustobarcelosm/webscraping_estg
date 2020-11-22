@@ -11,16 +11,17 @@ class Tjpi2Spider(scrapy.Spider):
     def start_requests(self):
 
         start_url = 'https://tjpi.pje.jus.br/1g/ConsultaPublica/' \
-                    'DetalheProcessoConsultaPublica/listView.seam?ca=76b320e49caed7824098ac5e9e5dbcb999009654a1964999'
+                    'DetalheProcessoConsultaPublica/listView.seam?ca=76b320e49caed78292ac1fbcfb4ebac599009654a1964999'
 
         yield scrapy.Request(url=start_url,
-                            callback=self.parse)
+                             callback=self.parse)
 
     def parse(self, response):
         partes = []
         url = response.url
         grau_processo = response.xpath('//head/title/text()').get().split('-')[-1].strip()
-        orgao = response.xpath('//span[@id="j_id140:processoTrfViewView:j_id217"]/div[1]/div/text()[1]').getall()[-1].strip()
+        orgao = response.xpath('//span[@id="j_id140:processoTrfViewView:j_id217"]/'
+                               'div[1]/div/text()[1]').getall()[-1].strip()
         origem = response.xpath('//span[@id="j_id140:processoTrfViewView:j_id193"][1]/'
                                 'div/div/text()').getall()[-1].strip()
         nome_processural = response.xpath('//span[@id="j_id140:processoTrfViewView:j_id169"][1]'
